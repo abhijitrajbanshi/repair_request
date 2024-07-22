@@ -132,7 +132,6 @@
                         <div class="col-12 col-md-6">
                             <t t-if="repair_request.repair_image">
                                 <p><strong>Image Attachments:</strong></p>
-                                <!-- Thumbnail Image -->
                                 <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
                                      class="img-fluid border rounded mt-2"
                                      style="max-width: 200px; cursor: pointer;"
@@ -147,7 +146,6 @@
             </div>
         </div>
 
-        <!-- Image Modal -->
         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
