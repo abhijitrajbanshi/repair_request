@@ -9,11 +9,11 @@ class CustomerPortalHome(CustomerPortal):
     @http.route(['/my/repair_requests'], type='http', auth="user", website=True)
     def lists(self, **kw):
         repair_requests = request.env['repair_request.repair_request'].sudo().search([])
-        return request.render("repair_request.repair_lists", {'repair_requests': repair_requests})
+        return request.render("repair_request.repair_lists", {'repair_requests': repair_requests, 'page_name': "repair_lists"})
 
     @http.route(['/my/create-request'], type='http', auth="user", website=True)
     def create_request(self, **kw):
-        return request.render("repair_request.create_repair_request", {})
+        return request.render("repair_request.create_repair_request", {'page_name': "create_request"})
 
     @http.route(['/my/create-request/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
     def submit_request(self, **kw):
@@ -38,7 +38,7 @@ class CustomerPortalHome(CustomerPortal):
         repair_request = request.env['repair_request.repair_request'].browse(repair_id)
         if not repair_request.exists():
             return request.redirect('/my/repair_requests')
-        return request.render("repair_request.repair_request_template", {'repair_request': repair_request})
+        return request.render("repair_request.repair_request_template", {'repair_request': repair_request, 'page_name': "view_details"})
 
     
 

@@ -2,6 +2,7 @@
 <odoo>
     <template id="portal_my_home" inherit_id="portal.portal_my_home">
         <xpath expr="//div[contains(@class, 'o_portal_my_home')]" position="inside">
+
             <div t-call="portal.portal_docs_entry" class="pt-5">
                 <t t-set="icon" t-value="'/repair_request/static/tools.png'"/>
                 <t t-set="title">Repair Requests</t>
@@ -10,12 +11,18 @@
                 <t t-set="config_card">True</t>
             </div>
         </xpath>
-   </template>
+    </template>
 
     <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'repair_request' " class="breadcrumb-item">
-                <a href="/my/repair_requests">Repair Request</a>
+            <li t-if="page_name == 'repair_lists' " class="breadcrumb-item">
+                <span>Repair Requests</span>
+            </li>
+            <li t-if="page_name == 'create_request' " class="breadcrumb-item">
+                <a href="/my/repair_requests">Repair Requests</a> / <span>Create Request</span>
+            </li>
+            <li t-if="page_name == 'view_details' " class="breadcrumb-item">
+                <a href="/my/repair_requests">Repair Requests</a> / <span>View Details</span>
             </li>
         </xpath>
     </template>
@@ -69,7 +76,7 @@
                             </td>
 
                             <td>
-                            <a t-attf-href="/my/repair_requests/{{ repair.id }}" class="btn btn-primary">View Details</a>
+                                <a t-attf-href="/my/repair_requests/{{ repair.id }}" class="btn btn-primary">View Details</a>
                             </td>
                         </tr>
                     </t>
@@ -79,38 +86,38 @@
     </template>
 
     <template id="create_repair_request" name="Create Repair Request">
-    <t t-call="portal.portal_layout">
-        <div class="container mt-4">
-            <h3 class="mb-4">Create Repair Request</h3>
-            <form action="/my/create-request/submit" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
-                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <h3 class="mb-4">Create Repair Request</h3>
+                <form action="/my/create-request/submit" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                <div class="form-group mb-3">
-                    <label for="repair_request_name" class="form-label">Request Name</label>
-                    <input type="text" id="repair_request_name" name="repair_request_name" class="form-control" placeholder="Enter request name" required="required"/>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_request_name" class="form-label">Request Name</label>
+                        <input type="text" id="repair_request_name" name="repair_request_name" class="form-control" placeholder="Enter request name" required="required"/>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label for="repair_request_description" class="form-label">Description</label>
-                    <textarea id="repair_request_description" name="repair_request_description" class="form-control" rows="4" placeholder="Provide a detailed description"></textarea>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_request_description" class="form-label">Description</label>
+                        <textarea id="repair_request_description" name="repair_request_description" class="form-control" rows="4" placeholder="Provide a detailed description"></textarea>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label for="repair_image" class="form-label">Upload Image</label>
-                    <input type="file" class="form-control" id="repair_image" name="repair_image" multiple="true" />
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_image" class="form-label">Upload Image</label>
+                        <input type="file" class="form-control" id="repair_image" name="repair_image" multiple="true" />
+                    </div>
 
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary px-4 py-2">Submit</button>
-                </div>
-            </form>
-        </div>
-    </t>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4 py-2">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </t>
     </template>
 
-   <template id="repair_request_template" name="Repair Request Detail">
-    <t t-call="portal.portal_layout">
-        <div class="container my-4">
+    <template id="repair_request_template" name="Repair Request Detail">
+        <t t-call="portal.portal_layout">
+            <div class="container my-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">Repair Request: <t t-esc="repair_request.repair_request_name"/></h3>
@@ -135,9 +142,6 @@
                 </div>
             </div>
         </div>
-    </t>
+        </t>
     </template>
-
-
-
 </odoo>
