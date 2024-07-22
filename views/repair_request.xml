@@ -116,8 +116,8 @@
     </template>
 
     <template id="repair_request_template" name="Repair Request Detail">
-        <t t-call="portal.portal_layout">
-            <div class="container my-4">
+    <t t-call="portal.portal_layout">
+        <div class="container my-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">Repair Request: <t t-esc="repair_request.repair_request_name"/></h3>
@@ -132,7 +132,11 @@
                         <div class="col-12 col-md-6">
                             <t t-if="repair_request.repair_image">
                                 <p><strong>Image Attachments:</strong></p>
-                                <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')" class="img-fluid border rounded mt-2"/>
+                                <!-- Thumbnail Image -->
+                                <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
+                                     class="img-fluid border rounded mt-2"
+                                     style="max-width: 200px; cursor: pointer;"
+                                     data-bs-toggle="modal" data-bs-target="#imageModal"/>
                             </t>
                         </div>
                     </div>
@@ -142,6 +146,23 @@
                 </div>
             </div>
         </div>
-        </t>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
+                             class="img-fluid border rounded"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
     </template>
+
 </odoo>
