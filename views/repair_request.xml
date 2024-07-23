@@ -182,17 +182,19 @@
             <form>
                 <header>
                     <button class="btn-primary" name="generate_quotation_button_method" string="Generate Quotation" invisible="status=='quotation'" type="object"/>
-                    <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review" invisible="status=='client_review' or 'cancel'" type="object"/>
+                    <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review" invisible="status=='client_review'" type="object"/>
                     <button name="cancel_button_method" string="Cancel" invisible="status=='cancel'" type="object"/>
 
                     <field name="status" widget="statusbar"/>
                 </header>
                 <sheet>
                     <group>
-                        <field name="repair_request_name" readonly="1"/>
-                        <field name="description" readonly="1"/>
-                        <field name="status" readonly="1"/>
-                        <field name="repair_image"/>
+                        <field name="partner_id"/>
+                        <field name="repair_request_name"/>
+                        <field name="product_id"/>
+                        <field name="description"/>
+                        <field name="status"/>
+                        <field name="repair_image" widget="image" class="oe_inline oe_invisible_modifier col-md-6" options="{'size': [200, 200]}"/>
                     </group>
                 </sheet>
                 <div class="oe_chatter">

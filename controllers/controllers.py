@@ -30,6 +30,7 @@ class CustomerPortalHome(CustomerPortal):
                 'repair_request_name': repair_request_name,
                 'description': description,
                 'repair_image': repair_image_data,
+                'partner_id': request.env.user.partner_id.id,
             })
         return request.redirect('/my/repair_requests')
 

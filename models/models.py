@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class RepairRequest(models.Model):
@@ -10,6 +11,8 @@ class RepairRequest(models.Model):
 
     repair_request_name = fields.Char(string="Repair Request Name", required=True)
     description = fields.Text(string="Description")
+    partner_id = fields.Many2one('res.partner', string='Customer', required=True)
+    product_id = fields.Many2one('product.product', string='Product', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     status = fields.Selection(
         [('new', 'New'),
@@ -22,8 +25,10 @@ class RepairRequest(models.Model):
         tracking=True
     )
     def generate_quotation_button_method(self):
-        self.status = 'quotation'
+         self.status = 'quotation'
     def send_for_review_button_method(self):
         self.status = 'client_review'
     def cancel_button_method(self):
         self.status = 'cancel'
+
+
