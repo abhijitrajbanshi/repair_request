@@ -18,7 +18,7 @@ Repair Request
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'portal'],
+    'depends': ['base', 'portal', 'mail'],
 
     # always loaded
     'data': [

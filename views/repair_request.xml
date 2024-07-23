@@ -104,7 +104,7 @@
 
                     <div class="form-group mb-3">
                         <label for="repair_image" class="form-label">Upload Image</label>
-                        <input type="file" class="form-control" id="repair_image" name="repair_image" multiple="true" />
+                        <input type="file" class="form-control" id="repair_image" name="repair_image"/>
                     </div>
 
                     <div class="d-flex justify-content-end">
@@ -147,7 +147,7 @@
         </div>
 
         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
@@ -155,7 +155,7 @@
                     </div>
                     <div class="modal-body text-center">
                         <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
-                             class="img-fluid border rounded"/>
+                             class="img-fluid border rounded" style="width: 100%; height: 100%; object-fit: contain;"/>
                     </div>
                 </div>
             </div>
@@ -163,4 +163,54 @@
     </t>
     </template>
 
+    <record id="repair_request_list_view" model="ir.ui.view">
+        <field name="name">repair.request.list.view</field>
+        <field name="model">repair_request.repair_request</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="repair_request_name"/>
+                <field name="description" />
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="repair_request_form_view" model="ir.ui.view">
+        <field name="name">repair.request.form.view</field>
+        <field name="model">repair_request.repair_request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button class="btn-primary" name="generate_quotation_button_method" string="Generate Quotation" invisible="status=='quotation'" type="object"/>
+                    <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review" invisible="status=='client_review' or 'cancel'" type="object"/>
+                    <button name="cancel_button_method" string="Cancel" invisible="status=='cancel'" type="object"/>
+
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="repair_request_name" readonly="1"/>
+                        <field name="description" readonly="1"/>
+                        <field name="status" readonly="1"/>
+                        <field name="repair_image"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="action_repair_request" model="ir.actions.act_window">
+        <field name="name">Repair Request</field>
+        <field name="res_model">repair_request.repair_request</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="repair_request_root_menu" name="Repair Request"/>
+    <menuitem id="repair_request_sub_menu" parent="repair_request_root_menu"/>
+    <menuitem id="repair_request_menu" action="action_repair_request" parent="repair_request_sub_menu"/>
 </odoo>
