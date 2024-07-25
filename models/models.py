@@ -78,4 +78,3 @@ class RepairRequest(models.Model):
             self.status = 'accepted'
 
 
-
