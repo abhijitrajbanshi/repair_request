@@ -92,4 +92,3 @@ class RepairRequest(models.Model):
         used = fields.Boolean(string='Used', default=False)
 
 
-
