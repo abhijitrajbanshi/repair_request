@@ -23,7 +23,8 @@ Repair Request
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/repair_request.xml'
+        'views/repair_request.xml',
+        'views/views.xml'
     ],
     # only loaded in demonstration mode
     'demo': [
