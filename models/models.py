@@ -9,7 +9,7 @@ class RepairRequest(models.Model):
     _inherit = "mail.thread"
     _description = 'Repair Request'
 
-    repair_request_name = fields.Char(string="Repair Request Name", required=True)
+    repair_request_name = fields.Char(string="Repair Request Name")
     repair_reference = fields.Char(string="Repair Reference", copy=False, readonly=True,
                                           default='New')
     description = fields.Text(string="Description")

@@ -95,7 +95,7 @@
 
                     <div class="form-group mb-3">
                         <label for="repair_request_name" class="form-label">Request Name</label>
-                        <input type="text" id="repair_request_name" name="repair_request_name" class="form-control" placeholder="Enter request name" required="required"/>
+                        <input type="text" id="repair_request_name" name="repair_request_name" class="form-control" placeholder="Enter request name"/>
                     </div>
 
                     <div class="form-group mb-3">
