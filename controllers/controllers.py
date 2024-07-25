@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 import base64
-
+import logging
+logger = logging.getLogger(__name__)
 from odoo import http
 from odoo.addons.portal.controllers.portal import CustomerPortal as CustomerPortal
 from odoo.http import request, route
@@ -70,4 +71,13 @@ class CustomerPortalHome(CustomerPortal):
         if repair_request.status == 'client_review':
             repair_request.accept_quotation()
         return request.redirect('/my/repair_requests')
+
+    @http.route(['/my/repair_requests/view_quotation/<int:repair_id>'], type='http', auth="user", website=True)
+    def view_quotation(self, repair_id, **kw):
+        repair_request = request.env['repair_request.repair_request'].browse(repair_id)
+        if not repair_request.exists() or not repair_request.quotation_id:
+            return request.redirect('/my/repair_requests')
+        quotation = repair_request.quotation_id
+        return request.render("repair_request.quotation_template", {'repair_request': repair_request, 'quotation': quotation, 'repair_id': repair_id, 'page_name': "view_quotation"})
+    
 
