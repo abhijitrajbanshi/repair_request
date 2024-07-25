@@ -29,8 +29,8 @@ class RepairRequest(models.Model):
         [('new', 'New'),
          ('quotation', 'Quotation'),
          ('client_review', 'Client Review'),
-         ('cancel', 'Cancelled'),
-         ('accepted', 'Accepted')],
+         ('accepted', 'Accepted'),
+         ('cancel', 'Cancelled')],
         string='Status',
         default='new',
         required=True,
@@ -38,6 +38,8 @@ class RepairRequest(models.Model):
     )
     quotation_id = fields.Many2one('sale.order', string="Quotation")
     sale_order_id = fields.Many2one('sale.order', string="Sales Order")
+    part_ids = fields.One2many('repair_request.parts', 'repair_request_id', string='Parts')
+    repair_notes = fields.Text(string='Repair Notes')
 
     @api.model
     def create(self, vals):
@@ -76,6 +78,18 @@ class RepairRequest(models.Model):
             self.quotation_id.action_confirm()
             self.sale_order_id = self.quotation_id.id
             self.status = 'accepted'
+
+    class RepairParts(models.Model):
+        _name = 'repair_request.parts'
+        _description = 'Repair Parts'
+
+        repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
+                                            ondelete='cascade')
+        part_type = fields.Selection([('add', 'Add'), ('remove', 'Remove')], string='Type', required=True)
+        product_id = fields.Many2one('product.product', string='Product', required=True)
+        demand = fields.Float(string='Demand', required=True)
+        done = fields.Float(string='Done')
+        used = fields.Boolean(string='Used', default=False)
 
 
 
