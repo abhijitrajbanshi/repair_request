@@ -27,12 +27,12 @@ class CustomerPortalHome(CustomerPortal):
     def submit_request(self, **kw):
         repair_request_name = kw.get('repair_request_name')
         description = kw.get('repair_request_description')
-        product_id = int(kw.get('product_id'))
+        product_name = kw.get('product_name')
         repair_image = request.httprequest.files.get('repair_image')
         repair_image_data = False
 
         # Validate required fields
-        if not repair_request_name or not description or not product_id:
+        if not repair_request_name or not description or not product_name:
             request.session['error_message'] = "Please provide all required information."
             return request.redirect('/my/create-request')
 
@@ -46,7 +46,7 @@ class CustomerPortalHome(CustomerPortal):
         # Create the repair request
         request.env['repair_request.repair_request'].sudo().create({
             'repair_request_name': repair_request_name,
-            'product_id': product_id,
+            'product_name': product_name,
             'description': description,
             'repair_image': repair_image_data,
             'partner_id': request.env.user.partner_id.id,

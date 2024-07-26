@@ -14,6 +14,7 @@ class RepairRequest(models.Model):
                                           default='New')
     description = fields.Text(string="Description")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
+    product_name = fields.Char(string="Product to Repair")
     product_id = fields.Many2one('product.product', string='Product to Repair', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
