@@ -29,7 +29,7 @@
                         <group>
                         <field name="repair_reference"/>
                         <field name="partner_id"/>
-                        <field name="product_id"/>
+                        <field name="product_name"/>
                         <field name="under_warranty"/>
                         <field name="repair_image" widget="image" class="oe_inline oe_invisible_modifier col-md-6" options="{'size': [200, 200]}"/>
                         </group>
@@ -43,11 +43,11 @@
                         <page string="Parts">
                             <field name="part_ids">
                                 <tree editable="bottom">
-                                <field name="part_type"/>
-                                <field name="product_id"/>
-                                <field name="demand"/>
-                                <field name="done"/>
-                                <field name="used"/>
+                                    <field name="part_type"/>
+                                    <field name="product_id"/>
+                                    <field name="demand"/>
+                                    <field name="done"/>
+                                    <field name="used"/>
                                 </tree>
                             </field>
                         </page>

@@ -15,7 +15,7 @@ class RepairRequest(models.Model):
     description = fields.Text(string="Description")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     product_name = fields.Char(string="Product to Repair")
-    product_id = fields.Many2one('product.product', string='Product to Repair', required=True)
+    product_id = fields.Many2one('product.product', string='Product', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
@@ -52,15 +52,41 @@ class RepairRequest(models.Model):
     def cancel_button_method(self):
         self.status = 'cancel'
 
+    # def generate_quotation_button_method(self):
+    #     sale_order = self.env['sale.order'].create({
+    #         'partner_id': self.partner_id.id,
+    #         'order_line': [(0, 0, {
+    #             'product_id': self.product_id.id,
+    #             'product_uom_qty': 1,
+    #             'price_unit': self.product_id.lst_price,
+    #             'name': self.description,
+    #         })],
+    #     })
+    #     self.quotation_id = sale_order.id
+    #     self.status = 'quotation'
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'name': 'Sales Quotation',
+    #         'res_model': 'sale.order',
+    #         'res_id': sale_order.id,
+    #         'view_mode': 'form',
+    #         'view_type': 'form',
+    #         'target': 'current',
+    #     }
+
     def generate_quotation_button_method(self):
+        sale_order_lines = []
+        for part in self.part_ids:
+            sale_order_lines.append((0, 0, {
+                'product_id': part.product_id.id,
+                'product_uom_qty': part.demand,
+                'price_unit': part.product_id.lst_price,
+                'name': part.product_id.name,
+            }))
+
         sale_order = self.env['sale.order'].create({
             'partner_id': self.partner_id.id,
-            'order_line': [(0, 0, {
-                'product_id': self.product_id.id,
-                'product_uom_qty': 1,
-                'price_unit': self.product_id.lst_price,
-                'name': self.description,
-            })],
+            'order_line': sale_order_lines,
         })
         self.quotation_id = sale_order.id
         self.status = 'quotation'
