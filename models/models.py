@@ -18,12 +18,10 @@ class RepairRequest(models.Model):
     client_email = fields.Char(string="Client Email")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     product_name = fields.Char(string="Product to Repair")
-    # product_id = fields.Many2one('product.product', string='Product', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
     responsible_user_id = fields.Many2one('res.users', string="Responsible")
-    # tag_ids = fields.Many2many('res.tag', string="Tags")
     component_status = fields.Selection(
         [('green', 'Available'), ('red', 'Unavailable')],
         string="Component Status",
@@ -34,7 +32,6 @@ class RepairRequest(models.Model):
          ('quotation', 'Quotation'),
          ('client_review', 'Client Review'),
          ('accepted', 'Accepted'),
-         ('send_for_client_review', 'Client Review'),
          ('cancel', 'Cancelled')],
         string='Status',
         default='new',
@@ -53,33 +50,6 @@ class RepairRequest(models.Model):
         if vals.get('repair_reference', 'New') == 'New':
             vals['repair_reference'] = self.env['ir.sequence'].next_by_code('repair_request.repair_request') or 'New'
         return super(RepairRequest, self).create(vals)
-    # def send_for_review_button_method(self):
-    #     self.status = 'client_review'
-    #     self.status = 'client_review'
-    # def cancel_button_method(self):
-    #     self.status = 'cancel'
-
-    # def generate_quotation_button_method(self):
-    #     sale_order = self.env['sale.order'].create({
-    #         'partner_id': self.partner_id.id,
-    #         'order_line': [(0, 0, {
-    #             'product_id': self.product_id.id,
-    #             'product_uom_qty': 1,
-    #             'price_unit': self.product_id.lst_price,
-    #             'name': self.description,
-    #         })],
-    #     })
-    #     self.quotation_id = sale_order.id
-    #     self.status = 'quotation'
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'name': 'Sales Quotation',
-    #         'res_model': 'sale.order',
-    #         'res_id': sale_order.id,
-    #         'view_mode': 'form',
-    #         'view_type': 'form',
-    #         'target': 'current',
-    #     }
 
     def generate_quotation_button_method(self):
         sale_order_lines = []
@@ -131,11 +101,11 @@ class RepairRequest(models.Model):
             # Send the email
             mail.send()
 
-            record.status = 'send_for_client_review'
+            record.status = 'client_review'
 
     def cancel_button_method(self):
         for record in self:
-            if record.state in ['quotation', 'send_for_client_review']:
+            if record.state in ['quotation', 'client_review']:
                 raise UserError("Cannot move to 'Cancelled' once a quotation is generated or sent for client review.")
             record.state = 'cancelled'
 
