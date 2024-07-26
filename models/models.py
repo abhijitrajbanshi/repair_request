@@ -2,6 +2,8 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class RepairRequest(models.Model):
@@ -13,9 +15,10 @@ class RepairRequest(models.Model):
     repair_reference = fields.Char(string="Repair Reference", copy=False, readonly=True,
                                           default='New')
     description = fields.Text(string="Description")
+    client_email = fields.Char(string="Client Email")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     product_name = fields.Char(string="Product to Repair")
-    product_id = fields.Many2one('product.product', string='Product', required=True)
+    # product_id = fields.Many2one('product.product', string='Product', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
@@ -31,6 +34,7 @@ class RepairRequest(models.Model):
          ('quotation', 'Quotation'),
          ('client_review', 'Client Review'),
          ('accepted', 'Accepted'),
+         ('send_for_client_review', 'Client Review'),
          ('cancel', 'Cancelled')],
         string='Status',
         default='new',
@@ -44,13 +48,16 @@ class RepairRequest(models.Model):
 
     @api.model
     def create(self, vals):
+        if not vals.get('product_name'):
+            raise UserError("The field 'Product' is required.")
         if vals.get('repair_reference', 'New') == 'New':
             vals['repair_reference'] = self.env['ir.sequence'].next_by_code('repair_request.repair_request') or 'New'
         return super(RepairRequest, self).create(vals)
-    def send_for_review_button_method(self):
-        self.status = 'client_review'
-    def cancel_button_method(self):
-        self.status = 'cancel'
+    # def send_for_review_button_method(self):
+    #     self.status = 'client_review'
+    #     self.status = 'client_review'
+    # def cancel_button_method(self):
+    #     self.status = 'cancel'
 
     # def generate_quotation_button_method(self):
     #     sale_order = self.env['sale.order'].create({
@@ -99,6 +106,38 @@ class RepairRequest(models.Model):
             'view_type': 'form',
             'target': 'current',
         }
+
+    def send_for_review_button_method(self):
+        for record in self:
+            if record.status != 'quotation':
+                raise UserError("Cannot send for client review until a quotation is generated.")
+
+            # TODO: Send emails asynchronously
+
+            # Post a message to each member of the design team
+            subject = "Repair Request Review"
+            body = f"""
+                       <p>Dear {record.partner_id.name},</p>
+                       <p>Your repair request (<b>{record.product_name}</b>) is ready for review. Please log in to the portal to review the details.</p>
+                       <p>Best regards,<br/>Sales Team</p>
+                       """
+            email_values = {
+                'subject': subject,
+
+                'body_html': body,
+                'email_to': record.client_email,  # Assuming each member has a work_email field
+            }
+            mail = record.env['mail.mail'].create(email_values)
+            # Send the email
+            mail.send()
+
+            record.status = 'send_for_client_review'
+
+    def cancel_button_method(self):
+        for record in self:
+            if record.state in ['quotation', 'send_for_client_review']:
+                raise UserError("Cannot move to 'Cancelled' once a quotation is generated or sent for client review.")
+            record.state = 'cancelled'
 
     def accept_quotation(self):
         if self.quotation_id:

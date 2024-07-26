@@ -47,6 +47,7 @@ class CustomerPortalHome(CustomerPortal):
         request.env['repair_request.repair_request'].sudo().create({
             'repair_request_name': repair_request_name,
             'product_name': product_name,
+            'client_email': request.env.user.email,
             'description': description,
             'repair_image': repair_image_data,
             'partner_id': request.env.user.partner_id.id,
