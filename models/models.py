@@ -111,7 +111,7 @@ class RepairRequest(models.Model):
 
     def accept_quotation(self):
         if self.quotation_id:
-            self.quotation_id.action_confirm()
+            self.quotation_id.sudo().action_confirm()
             self.sale_order_id = self.quotation_id.id
             self.status = 'accepted'
 
@@ -121,7 +121,7 @@ class RepairRequest(models.Model):
 
         repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
                                             ondelete='cascade')
-        part_type = fields.Selection([('add', 'Add'), ('remove', 'Remove')], string='Type', required=True)
+        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True)
         product_id = fields.Many2one('product.product', string='Product', required=True)
         demand = fields.Float(string='Demand', required=True)
         done = fields.Float(string='Done')

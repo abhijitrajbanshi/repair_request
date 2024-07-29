@@ -68,17 +68,38 @@ class CustomerPortalHome(CustomerPortal):
 
     @http.route('/my/repair_requests/accept/<int:repair_id>', type='http', auth="user", website=True)
     def accept_quotation(self, repair_id, **kw):
-        repair_request = request.env['repair_request.repair_request'].browse(repair_id)
+        repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if repair_request.status == 'client_review':
-            repair_request.accept_quotation()
+            repair_request.sudo().accept_quotation()
         return request.redirect('/my/repair_requests')
+
+    # @http.route(['/my/repair_requests/view_quotation/<int:repair_id>'], type='http', auth="user", website=True)
+    # def view_quotation(self, repair_id, **kw):
+    #     repair_request = request.env['repair_request.repair_request'].browse(repair_id)
+    #     if not repair_request.exists() or not repair_request.quotation_id:
+    #         return request.redirect('/my/repair_requests')
+    #     quotation = repair_request.quotation_id
+    #     return request.render("repair_request.quotation_template", {
+    #         'repair_request': repair_request,
+    #         'quotation': quotation,
+    #         'repair_id': repair_id,
+    #         'page_name': "view_quotation"})
 
     @http.route(['/my/repair_requests/view_quotation/<int:repair_id>'], type='http', auth="user", website=True)
     def view_quotation(self, repair_id, **kw):
-        repair_request = request.env['repair_request.repair_request'].browse(repair_id)
-        if not repair_request.exists() or not repair_request.quotation_id:
+        try:
+            repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
+            if not repair_request.exists() or not repair_request.quotation_id:
+                logger.warning("Repair request does not exist or no quotation found")
+                return request.redirect('/my/repair_requests')
+            quotation = repair_request.quotation_id
+            return request.render("repair_request.quotation_template", {
+                'repair_request': repair_request,
+                'quotation': quotation,
+                'repair_id': repair_id,
+                'page_name': "view_quotation"})
+        except Exception as e:
+            logger.error("Error in view_quotation: %s", str(e))
             return request.redirect('/my/repair_requests')
-        quotation = repair_request.quotation_id
-        return request.render("repair_request.quotation_template", {'repair_request': repair_request, 'quotation': quotation, 'repair_id': repair_id, 'page_name': "view_quotation"})
-    
+
 
