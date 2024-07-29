@@ -34,7 +34,6 @@ class RepairRequest(models.Model):
          ('quotation', 'Quotation'),
          ('client_review', 'Client Review'),
          ('accepted', 'Accepted'),
-         ('send_for_client_review', 'Client Review'),
          ('cancel', 'Cancelled')],
         string='Status',
         default='new',
@@ -131,13 +130,13 @@ class RepairRequest(models.Model):
             # Send the email
             mail.send()
 
-            record.status = 'send_for_client_review'
+            record.status = 'client_review'
 
     def cancel_button_method(self):
         for record in self:
-            if record.state in ['quotation', 'send_for_client_review']:
+            if record.status in ['quotation', 'client_review']:
                 raise UserError("Cannot move to 'Cancelled' once a quotation is generated or sent for client review.")
-            record.state = 'cancelled'
+            record.status = 'cancel'
 
     def accept_quotation(self):
         if self.quotation_id:
