@@ -105,9 +105,9 @@ class RepairRequest(models.Model):
 
     def cancel_button_method(self):
         for record in self:
-            if record.state in ['quotation', 'client_review']:
+            if record.status in ['quotation', 'client_review']:
                 raise UserError("Cannot move to 'Cancelled' once a quotation is generated or sent for client review.")
-            record.state = 'cancelled'
+            record.status = 'cancel'
 
     def accept_quotation(self):
         if self.quotation_id:
