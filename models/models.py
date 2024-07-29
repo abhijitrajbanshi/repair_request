@@ -111,7 +111,7 @@ class RepairRequest(models.Model):
 
     def accept_quotation(self):
         if self.quotation_id:
-            self.quotation_id.action_confirm()
+            self.quotation_id.sudo().action_confirm()
             self.sale_order_id = self.quotation_id.id
             self.status = 'accepted'
 

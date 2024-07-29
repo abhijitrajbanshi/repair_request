@@ -68,9 +68,9 @@ class CustomerPortalHome(CustomerPortal):
 
     @http.route('/my/repair_requests/accept/<int:repair_id>', type='http', auth="user", website=True)
     def accept_quotation(self, repair_id, **kw):
-        repair_request = request.env['repair_request.repair_request'].browse(repair_id)
+        repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if repair_request.status == 'client_review':
-            repair_request.accept_quotation()
+            repair_request.sudo().accept_quotation()
         return request.redirect('/my/repair_requests')
 
     # @http.route(['/my/repair_requests/view_quotation/<int:repair_id>'], type='http', auth="user", website=True)
