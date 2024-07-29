@@ -18,12 +18,10 @@ class RepairRequest(models.Model):
     client_email = fields.Char(string="Client Email")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     product_name = fields.Char(string="Product to Repair")
-    # product_id = fields.Many2one('product.product', string='Product', required=True)
     repair_image = fields.Binary(string="Repair Image", attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
     responsible_user_id = fields.Many2one('res.users', string="Responsible")
-    # tag_ids = fields.Many2many('res.tag', string="Tags")
     component_status = fields.Selection(
         [('green', 'Available'), ('red', 'Unavailable')],
         string="Component Status",
@@ -52,33 +50,6 @@ class RepairRequest(models.Model):
         if vals.get('repair_reference', 'New') == 'New':
             vals['repair_reference'] = self.env['ir.sequence'].next_by_code('repair_request.repair_request') or 'New'
         return super(RepairRequest, self).create(vals)
-    # def send_for_review_button_method(self):
-    #     self.status = 'client_review'
-    #     self.status = 'client_review'
-    # def cancel_button_method(self):
-    #     self.status = 'cancel'
-
-    # def generate_quotation_button_method(self):
-    #     sale_order = self.env['sale.order'].create({
-    #         'partner_id': self.partner_id.id,
-    #         'order_line': [(0, 0, {
-    #             'product_id': self.product_id.id,
-    #             'product_uom_qty': 1,
-    #             'price_unit': self.product_id.lst_price,
-    #             'name': self.description,
-    #         })],
-    #     })
-    #     self.quotation_id = sale_order.id
-    #     self.status = 'quotation'
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'name': 'Sales Quotation',
-    #         'res_model': 'sale.order',
-    #         'res_id': sale_order.id,
-    #         'view_mode': 'form',
-    #         'view_type': 'form',
-    #         'target': 'current',
-    #     }
 
     def generate_quotation_button_method(self):
         sale_order_lines = []
@@ -140,7 +111,7 @@ class RepairRequest(models.Model):
 
     def accept_quotation(self):
         if self.quotation_id:
-            self.quotation_id.action_confirm()
+            self.quotation_id.sudo().action_confirm()
             self.sale_order_id = self.quotation_id.id
             self.status = 'accepted'
 
@@ -150,7 +121,7 @@ class RepairRequest(models.Model):
 
         repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
                                             ondelete='cascade')
-        part_type = fields.Selection([('add', 'Add'), ('remove', 'Remove')], string='Type', required=True)
+        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True)
         product_id = fields.Many2one('product.product', string='Product', required=True)
         demand = fields.Float(string='Demand', required=True)
         done = fields.Float(string='Done')

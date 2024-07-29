@@ -193,6 +193,11 @@
                 </div>
             </div>
         </div>
+        <div class="container my-4">
+            <t t-call="portal.message_thread">
+                <t t-set="object" t-value="repair_request"/>
+            </t>
+        </div>
     </t>
     </template>
 
@@ -246,6 +251,6 @@
             </div>
         </div>
     </t>
-</template>
+    </template>
 
 </odoo>
