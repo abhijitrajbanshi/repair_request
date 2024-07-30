@@ -40,8 +40,8 @@ class RepairRequest(models.Model):
         required=True,
         tracking=True
     )
-    quotation_id = fields.Many2one('sale.order', string="Quotation")
-    sale_order_id = fields.Many2one('sale.order', string="Sales Order")
+    quotation_id = fields.Many2one('sale.order', string="Quotation", readonly=True)
+    sale_order_id = fields.Many2one('sale.order', string="Sales Order", readonly=True)
     part_ids = fields.One2many('repair_request.parts', 'repair_request_id', string='Parts')
     repair_notes = fields.Text(string='Repair Notes')
 
@@ -123,7 +123,7 @@ class RepairRequest(models.Model):
 
         repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
                                             ondelete='cascade')
-        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True)
+        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True, default='add')
         product_id = fields.Many2one('product.product', string='Product', required=True)
         demand = fields.Float(string='Demand', required=True)
         done = fields.Float(string='Done')
