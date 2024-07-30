@@ -1,18 +1,31 @@
 # -- coding: utf-8 --
-import base64
-import logging
-logger = logging.getLogger(__name__)
+
 from odoo import http
 from odoo.addons.portal.controllers.portal import CustomerPortal as CustomerPortal
 from odoo.http import request, route
+from odoo.exceptions import UserError
+from PIL import UnidentifiedImageError
+import base64
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CustomerPortalHome(CustomerPortal):
     @http.route(['/my/repair_requests'], type='http', auth="user", website=True)
     def lists(self, **kw):
-        repair_requests = request.env['repair_request.repair_request'].sudo().search([('partner_id', '=', request.env.user.partner_id.id)])
+        repair_requests = request.env['repair_request.repair_request'].sudo().search(
+            [('partner_id', '=', request.env.user.partner_id.id)])
+        state_mapping = {
+            "new": "New",
+            "quotation": "In Progress",
+            "client_review": "Quotation Review",
+            "accepted": "Sales Order Confirmed",
+            "cancel": "Cancelled",
+        }
         return request.render("repair_request.repair_lists",
-                              {'repair_requests': repair_requests, 'page_name': "repair_lists"})
+                              {'repair_requests': repair_requests, 'state_mapping': state_mapping,
+                               'page_name': "repair_lists"})
 
     @http.route(['/my/create-request'], type='http', auth="user", website=True)
     def create_request(self, **kw):
@@ -25,33 +38,58 @@ class CustomerPortalHome(CustomerPortal):
 
     @http.route(['/my/create-request/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
     def submit_request(self, **kw):
+        errors = {"repair_request_name": "", "description": "", "product_name": "", "repair_image": ""}
         repair_request_name = kw.get('repair_request_name')
         description = kw.get('repair_request_description')
         product_name = kw.get('product_name')
-        repair_image = request.httprequest.files.get('repair_image')
-        repair_image_data = False
+        repair_image = request.httprequest.files.getlist('repair_image')
 
         # Validate required fields
-        if not repair_request_name or not description or not product_name:
-            request.session['error_message'] = "Please provide all required information."
-            return request.redirect('/my/create-request')
+        if not repair_request_name:
+            errors["repair_request_name"] = "Please Provide Repair Request Name"
+        if not description:
+            errors["description"] = "Please Provide Description"
+        if not product_name:
+            errors["product_name"] = "Please Provide Product Name"
+        if not repair_image:
+            errors["repair_image"] = "Please upload at least one image"
+        if (
+                errors["repair_request_name"] == ""
+                and errors["description"] == ""
+                and errors["product_name"] == ""
+                and errors["repair_image"] == ""
+        ):
+            try:
+                allowed_extensions = ["jpg", "jpeg", "png", "webp"]
+                image_ids = []
+                for image in repair_image:
+                    file_extension = image.filename.split(".")[-1].lower()
+                    if file_extension not in allowed_extensions:
+                        raise UnidentifiedImageError("Invalid image type")
+                    encoded_image = base64.b64encode(image.read())
+                    attachment = request.env["ir.attachment"].sudo().create(
+                        {
+                            "name": image.filename,
+                            "datas": encoded_image,
+                            "res_model": "repair_request.repair_request",
+                            "mimetype": image.content_type,
+                        }
+                    )
+                    image_ids.append(attachment.id)
 
-        # Validate image
-        if repair_image:
-            repair_image_data = base64.b64encode(repair_image.read()).decode('utf-8')
-        else:
-            request.session['error_message'] = "Please upload an image of the item."
-            return request.redirect('/my/create-request')
-
-        # Create the repair request
-        request.env['repair_request.repair_request'].sudo().create({
-            'repair_request_name': repair_request_name,
-            'product_name': product_name,
-            'client_email': request.env.user.email,
-            'description': description,
-            'repair_image': repair_image_data,
-            'partner_id': request.env.user.partner_id.id,
-        })
+                request.env['repair_request.repair_request'].sudo().create(
+                    {
+                        'repair_request_name': repair_request_name,
+                        'product_name': product_name,
+                        'client_email': request.env.user.email,
+                        'description': description,
+                        'repair_image': [(6, 0, image_ids)],
+                        'partner_id': request.env.user.partner_id.id,
+                    })
+            except UnidentifiedImageError as e:
+                errors["repair_image"] = "Invalid image type"
+            except Exception as e:
+                errors["repair_image"] = f"Error : {e}"
 
         # Set success message
         request.session['success_message'] = "Repair request submitted successfully."
@@ -60,11 +98,23 @@ class CustomerPortalHome(CustomerPortal):
 
     @http.route('/my/repair_requests/<int:repair_id>', type='http', auth="user", website=True)
     def view_repair_request(self, repair_id, **kw):
-        repair_request = request.env['repair_request.repair_request'].browse(repair_id)
+        repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
             return request.redirect('/my/repair_requests')
-        return request.render("repair_request.repair_request_template",
-                              {'repair_request': repair_request, 'page_name': "view_details"})
+        images = []
+        for attachment in repair_request.repair_image:
+            try:
+                image_data = attachment.datas.decode('utf-8')
+                images.append({'id': attachment.id, 'data': image_data})
+            except Exception as e:
+                logger.error(f"Error reading image {attachment.id}: {e}")
+        values = {
+            "page_name": "view_details",
+            "repair_request": repair_request,
+            "images": images,
+        }
+        # Pass the specific design request to the template
+        return request.render("repair_request.repair_request_template", values)
 
     @http.route('/my/repair_requests/accept/<int:repair_id>', type='http', auth="user", website=True)
     def accept_quotation(self, repair_id, **kw):
@@ -89,5 +139,3 @@ class CustomerPortalHome(CustomerPortal):
         except Exception as e:
             logger.error("Error in view_quotation: %s", str(e))
             return request.redirect('/my/repair_requests')
-
-
