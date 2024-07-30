@@ -3,6 +3,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 import logging
+
 _logger = logging.getLogger(__name__)
 
 
@@ -13,12 +14,13 @@ class RepairRequest(models.Model):
 
     repair_request_name = fields.Char(string="Repair Request Name")
     repair_reference = fields.Char(string="Repair Reference", copy=False, readonly=True,
-                                          default='New')
+                                   default='New')
     description = fields.Text(string="Description")
     client_email = fields.Char(string="Client Email")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     product_name = fields.Char(string="Product to Repair")
-    repair_image = fields.Binary(string="Repair Image", attachment=True)
+    repair_image = fields.Many2many('ir.attachment', 'repair_request_image_rel', 'request_id', 'attachment_id',
+                                    string='Repair Images', attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
     responsible_user_id = fields.Many2one('res.users', string="Responsible")
@@ -126,5 +128,3 @@ class RepairRequest(models.Model):
         demand = fields.Float(string='Demand', required=True)
         done = fields.Float(string='Done')
         used = fields.Boolean(string='Used', default=False)
-
-

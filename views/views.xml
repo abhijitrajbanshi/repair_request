@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="repair_request_name"/>
-                <field name="description" />
+                <field name="description"/>
                 <field name="status"/>
             </tree>
         </field>
@@ -18,9 +18,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button class="btn-primary" name="generate_quotation_button_method" string="Generate Quotation" type="object" invisible= "status != 'new'"/>
-                    <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review" type="object" invisible= "status != 'quotation'" />
-                    <button name="cancel_button_method" string="Cancel" type="object" invisible="status not in 'new'" />
+                    <button class="btn-primary" name="generate_quotation_button_method" string="Generate Quotation"
+                            type="object" invisible="status != 'new'"/>
+                    <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review"
+                            type="object" invisible="status != 'quotation'"/>
+                    <button name="cancel_button_method" string="Cancel" type="object" invisible="status not in 'new'"/>
 
                     <field name="status" widget="statusbar"/>
                 </header>
@@ -31,7 +33,7 @@
                             <field name="partner_id"/>
                             <field name="product_name"/>
                             <field name="under_warranty"/>
-                            <field name="repair_image" widget="image" class="oe_inline oe_invisible_modifier col-md-6" options="{'size': [200, 200]}"/>
+                            <field name="repair_image" widget="many2many_binary" options="{'preview_image': 'datas'}"/>
                         </group>
                         <group>
                             <field name="quotation_id"/>
@@ -64,7 +66,7 @@
         </field>
     </record>
 
-     <data noupdate="1">
+    <data noupdate="1">
         <record id="seq_repair_reference_number" model="ir.sequence">
             <field name="name">Repair Reference Number</field>
             <field name="code">repair_request.repair_request</field>

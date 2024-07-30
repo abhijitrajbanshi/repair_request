@@ -78,7 +78,7 @@
                             </td>
 
                             <td>
-                                <t t-esc="repair.status" />
+                                <t t-esc="state_mapping.get(repair.status, '')"/>
                             </td>
 
                             <td>
@@ -135,7 +135,7 @@
 
                 <div class="form-group mb-3">
                     <label for="repair_image" class="form-label">Upload Image</label>
-                    <input type="file" class="form-control" id="repair_image" name="repair_image"/>
+                    <input type="file" class="form-control" id="repair_image" multiple = "multiple" name="repair_image" required="required"/>
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -163,12 +163,14 @@
                             <p><t t-esc="repair_request.description"/></p>
                         </div>
                         <div class="col-12 col-md-6">
-                            <t t-if="repair_request.repair_image">
+                            <t t-if="images">
                                 <p><strong>Image Attachments:</strong></p>
-                                <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
-                                     class="img-fluid border rounded mt-2"
-                                     style="max-width: 200px; cursor: pointer;"
-                                     data-bs-toggle="modal" data-bs-target="#imageModal"/>
+                                <div t-foreach="images" t-as="image">
+                                    <img t-att-src="'data:image/png;base64,' + image['data']"
+                                        class="img-fluid border rounded mt-2"
+                                        style="max-width: 200px; cursor: pointer;"
+                                        data-bs-toggle="modal" data-bs-target="#imageModal"/>
+                                </div>
                             </t>
                         </div>
                     </div>
@@ -187,8 +189,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <img t-att-src="'data:image/png;base64,' + repair_request.repair_image.decode('utf-8')"
+                        <t t-if="image">
+                        <img t-att-src="'data:image/png;base64,' + image['data']"
                              class="img-fluid border rounded" style="width: 100%; height: 100%; object-fit: contain;"/>
+                        </t>
                     </div>
                 </div>
             </div>
