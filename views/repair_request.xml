@@ -198,6 +198,7 @@
             </div>
         </div>
         <div class="container my-4">
+            <h3>Communication history</h3>
             <t t-call="portal.message_thread">
                 <t t-set="object" t-value="repair_request"/>
             </t>
@@ -253,6 +254,12 @@
                         </t>
                 </div>
             </div>
+        </div>
+        <div class="container my-4">
+            <h3>Communication history</h3>
+            <t t-call="portal.message_thread">
+                <t t-set="object" t-value="repair_request"/>
+            </t>
         </div>
     </t>
     </template>
