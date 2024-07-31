@@ -24,6 +24,10 @@ class RepairRequest(models.Model):
     under_warranty = fields.Boolean(string="Under Warranty")
     scheduled_date = fields.Datetime(string="Scheduled Date")
     responsible_user_id = fields.Many2one('res.users', string="Responsible")
+    repair_deadline = fields.Datetime(string="Repair Deadline")
+    completion_date = fields.Datetime(string="Completion Date")
+    is_past_due = fields.Boolean(string="Is Past Due", compute='_compute_is_past_due', store=True)
+
     component_status = fields.Selection(
         [('green', 'Available'), ('red', 'Unavailable')],
         string="Component Status",
@@ -34,6 +38,8 @@ class RepairRequest(models.Model):
          ('quotation', 'Quotation'),
          ('client_review', 'Client Review'),
          ('accepted', 'Accepted'),
+         ('in_progress', 'In Progress'),
+         ('completed', 'Completed'),
          ('cancel', 'Cancelled')],
         string='Status',
         default='new',
@@ -116,6 +122,24 @@ class RepairRequest(models.Model):
             self.quotation_id.sudo().action_confirm()
             self.sale_order_id = self.quotation_id.id
             self.status = 'accepted'
+
+    @api.depends('repair_deadline', 'status')
+    def _compute_is_past_due(self):
+        for record in self:
+            record.is_past_due = bool(record.repair_deadline and record.repair_deadline < fields.Datetime.now() and record.status != 'completed')
+
+    def start_repair(self):
+        for record in self:
+            if record.status not in ['accepted', 'in_progress']:
+                raise UserError("Repair cannot be started unless it is accepted or already in progress.")
+            record.status = 'in_progress'
+
+    def complete_repair(self):
+        for record in self:
+            if record.status != 'in_progress':
+                raise UserError("Repair can only be completed if it is in progress.")
+            record.status = 'completed'
+            record.completion_date = fields.Datetime.now()
 
     class RepairParts(models.Model):
         _name = 'repair_request.parts'

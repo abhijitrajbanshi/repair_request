@@ -41,6 +41,7 @@ class CustomerPortalHome(CustomerPortal):
         errors = {"repair_request_name": "", "description": "", "product_name": "", "repair_image": ""}
         repair_request_name = kw.get('repair_request_name')
         description = kw.get('repair_request_description')
+        repair_deadline = kw.get('repair_deadline')
         product_name = kw.get('product_name')
         repair_image = request.httprequest.files.getlist('repair_image')
 
@@ -83,6 +84,7 @@ class CustomerPortalHome(CustomerPortal):
                         'product_name': product_name,
                         'client_email': request.env.user.email,
                         'description': description,
+                        'repair_deadline': repair_deadline,
                         'repair_image': [(6, 0, image_ids)],
                         'partner_id': request.env.user.partner_id.id,
                     })
