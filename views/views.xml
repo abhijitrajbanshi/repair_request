@@ -4,10 +4,11 @@
         <field name="name">repair.request.list.view</field>
         <field name="model">repair_request.repair_request</field>
         <field name="arch" type="xml">
-            <tree>
-                <field name="repair_request_name"/>
-                <field name="description"/>
-                <field name="status"/>
+            <tree string="Repair Requests" default_order="create_date desc">
+                <field name="repair_reference" string="Number"/>
+                <field name="create_date" string="Date"/>
+                <field name="repair_request_name" string="Name"/>
+                <field name="status" string="Status"/>
             </tree>
         </field>
     </record>
@@ -22,6 +23,8 @@
                             type="object" invisible="status != 'new'"/>
                     <button class="btn-primary" name="send_for_review_button_method" string="Send For Client Review"
                             type="object" invisible="status != 'quotation'"/>
+                    <button name="start_repair" type="object" string="Start Repair" class="btn-primary"/>
+                    <button name="complete_repair" type="object" string="Complete Repair" class="btn-primary"/>
                     <button name="cancel_button_method" string="Cancel" type="object" invisible="status not in 'new'"/>
 
                     <field name="status" widget="statusbar"/>
@@ -33,6 +36,9 @@
                             <field name="partner_id"/>
                             <field name="product_name"/>
                             <field name="under_warranty"/>
+                            <field name="repair_deadline"/>
+                            <field name="completion_date"/>
+                            <field name="is_past_due"/>
                             <field name="repair_image" widget="many2many_binary" options="{'preview_image': 'datas'}"/>
                         </group>
                         <group>

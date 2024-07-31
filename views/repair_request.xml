@@ -134,6 +134,11 @@
                 </div>
 
                 <div class="form-group mb-3">
+                    <label for="repair_deadline" class="form-label">Repair Deadline</label>
+                    <input type="datetime-local" class="form-control" id="repair_deadline" name="repair_deadline" required="required"/>
+                </div>
+
+                <div class="form-group mb-3">
                     <label for="repair_image" class="form-label">Upload Image</label>
                     <input type="file" class="form-control" id="repair_image" multiple = "multiple" name="repair_image" required="required"/>
                 </div>
