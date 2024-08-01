@@ -1,4 +1,5 @@
 # -- coding: utf-8 --
+from datetime import datetime
 
 from odoo import http
 from odoo.addons.portal.controllers.portal import CustomerPortal as CustomerPortal
@@ -36,66 +37,73 @@ class CustomerPortalHome(CustomerPortal):
                               {'page_name': "create_request", 'products': products, 'error_message': error_message,
                                'success_message': success_message})
 
+
     @http.route(['/my/create-request/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
     def submit_request(self, **kw):
-        errors = {"repair_request_name": "", "description": "", "product_name": "", "repair_image": ""}
+        # Retrieve form data
         repair_request_name = kw.get('repair_request_name')
-        description = kw.get('repair_request_description')
-        repair_deadline = kw.get('repair_deadline')
         product_name = kw.get('product_name')
+        description = kw.get('description')
+        repair_deadline = kw.get('repair_deadline')
         repair_image = request.httprequest.files.getlist('repair_image')
 
-        # Validate required fields
-        if not repair_request_name:
-            errors["repair_request_name"] = "Please Provide Repair Request Name"
-        if not description:
-            errors["description"] = "Please Provide Description"
-        if not product_name:
-            errors["product_name"] = "Please Provide Product Name"
+        # Initialize error dictionary
+        errors = {}
         if not repair_image:
             errors["repair_image"] = "Please upload at least one image"
-        if (
-                errors["repair_request_name"] == ""
-                and errors["description"] == ""
-                and errors["product_name"] == ""
-                and errors["repair_image"] == ""
-        ):
-            try:
-                allowed_extensions = ["jpg", "jpeg", "png", "webp"]
-                image_ids = []
-                for image in repair_image:
-                    file_extension = image.filename.split(".")[-1].lower()
-                    if file_extension not in allowed_extensions:
-                        raise UnidentifiedImageError("Invalid image type")
-                    encoded_image = base64.b64encode(image.read())
-                    attachment = request.env["ir.attachment"].sudo().create(
-                        {
-                            "name": image.filename,
-                            "datas": encoded_image,
-                            "res_model": "repair_request.repair_request",
-                            "mimetype": image.content_type,
-                        }
-                    )
-                    image_ids.append(attachment.id)
 
-                request.env['repair_request.repair_request'].sudo().create(
+        if errors:
+            return request.redirect('/my/create-request')
+
+        # Try to save the repair request with images
+        try:
+            allowed_extensions = ["jpg", "jpeg", "png", "webp"]
+            image_ids = []
+            for image in repair_image:
+                file_extension = image.filename.split(".")[-1].lower()
+                if file_extension not in allowed_extensions:
+                    raise UnidentifiedImageError("Invalid image type")
+                encoded_image = base64.b64encode(image.read())
+                attachment = request.env["ir.attachment"].sudo().create(
                     {
-                        'repair_request_name': repair_request_name,
-                        'product_name': product_name,
-                        'client_email': request.env.user.email,
-                        'description': description,
-                        'repair_deadline': repair_deadline,
-                        'repair_image': [(6, 0, image_ids)],
-                        'partner_id': request.env.user.partner_id.id,
-                    })
-            except UnidentifiedImageError as e:
-                errors["repair_image"] = "Invalid image type"
-            except Exception as e:
-                errors["repair_image"] = f"Error : {e}"
+                        "name": image.filename,
+                        "datas": encoded_image,
+                        "res_model": "repair_request.repair_request",
+                        "mimetype": image.content_type,
+                    }
+                )
+                image_ids.append(attachment.id)
+                logger.info("Image attached with ID: %s", attachment.id)
+
+            # Parse the repair deadline correctly
+            try:
+                repair_deadline = datetime.strptime(repair_deadline, '%Y-%m-%dT%H:%M')
+                logger.info("Parsed repair_deadline: %s", repair_deadline)
+            except ValueError as e:
+                errors["repair_deadline"] = "Invalid date format"
+                logger.error("Invalid date format for repair_deadline: %s", e)
+                return request.redirect('/my/create-request')
+
+            request.env['repair_request.repair_request'].sudo().create(
+                {
+                    'repair_request_name': repair_request_name,
+                    'product_name': product_name,
+                    'client_email': request.env.user.email,
+                    'description': description,
+                    'repair_deadline': repair_deadline,
+                    'repair_image': [(6, 0, image_ids)],
+                    'partner_id': request.env.user.partner_id.id,
+                })
+            logger.info("Repair request submitted successfully with images: %s", image_ids)
+        except UnidentifiedImageError as e:
+            errors["repair_image"] = "Invalid image type"
+            logger.error("Invalid image type: %s", e)
+        except Exception as e:
+            errors["repair_image"] = f"Error : {e}"
+            logger.error("Error submitting repair request: %s", e)
 
         # Set success message
         request.session['success_message'] = "Repair request submitted successfully."
-        request.session.pop('success_message', None)
         return request.redirect('/my/repair_requests')
 
     @http.route('/my/repair_requests/<int:repair_id>', type='http', auth="user", website=True)
@@ -103,6 +111,7 @@ class CustomerPortalHome(CustomerPortal):
         repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
             return request.redirect('/my/repair_requests')
+        logger.info("Repair request found with images: %s", repair_request.repair_image)
         images = []
         for attachment in repair_request.repair_image:
             try:
@@ -115,7 +124,6 @@ class CustomerPortalHome(CustomerPortal):
             "repair_request": repair_request,
             "images": images,
         }
-        # Pass the specific design request to the template
         return request.render("repair_request.repair_request_template", values)
 
     @http.route('/my/repair_requests/accept/<int:repair_id>', type='http', auth="user", website=True)
