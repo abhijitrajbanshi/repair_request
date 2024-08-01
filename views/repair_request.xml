@@ -217,7 +217,7 @@
                     </div>
                     <div class="card-footer text-right">
                         <a href="/my/repair_requests" class="btn btn-secondary">Back to List</a>
-                        <a t-if="repair_request.status in ['new', 'quotation']"
+                        <a t-if="repair_request.status in ['new', 'quotation', 'client_review']"
                            t-attf-href="/my/repair_requests/edit/{{ repair_request.id }}" class="btn btn-primary">Edit
                             Request
                         </a>
@@ -271,17 +271,48 @@
 
                     <div class="form-group mb-3">
                         <label for="repair_request_description" class="form-label">Description</label>
-                        <textarea id="repair_request_description" name="repair_request_description"
-                                  class="form-control" rows="4">
-                            <t t-esc="repair_request.description"/>
-                        </textarea>
+                        <textarea id="repair_request_description" name="repair_request_description" class="form-control" rows="4"><t t-esc="repair_request.description"/></textarea>
                     </div>
-
                     <div class="form-group mb-3">
                         <label for="repair_deadline" class="form-label">Repair Deadline</label>
-                        <input type="datetime-local" class="form-control" id="repair_deadline"
-                               name="repair_deadline" t-att-value="repair_request.repair_deadline"/>
+                        <input type="datetime-local" class="form-control" id="repair_deadline" name="repair_deadline"
+                               t-att-value="repair_request.repair_deadline.strftime('%Y-%m-%dT%H:%M') if repair_request.repair_deadline else ''"/>
                     </div>
+
+                    <!-- Image upload and management -->
+                    <div class="form-group mb-3">
+                        <label for="repair_image" class="form-label">Upload New Images</label>
+                        <input type="file" class="form-control" id="repair_image" multiple="multiple"
+                               name="repair_image" accept="image/*"/>
+                    </div>
+
+                    <!-- Existing images -->
+                    <div class="form-group mb-3">
+                        <label>Current Images:</label>
+                        <div class="row">
+                            <t t-foreach="repair_request.repair_image" t-as="image">
+                                <div class="col-md-3 mb-2">
+                                    <div style="position: relative; overflow: hidden; width: 100%; padding-top: 100%;">
+                                        <img t-att-src="'/web/image/ir.attachment/%s/datas' % image.id"
+                                             class="img-fluid mb-2"
+                                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                                    </div>
+                                    <div class="form-check" style="display: flex; align-items: center;">
+                                        <input type="checkbox" class="form-check-input"
+                                               t-att-id="'delete_image_%s' % image.id"
+                                               t-att-name="'delete_image_%s' % image.id"
+                                               style="width: 20px; height: 20px;"/>
+                                        <label class="form-check-label btn btn-danger btn-sm d-block w-100"
+                                               style="font-size: 16px; font-family: 'Arial, sans-serif'; margin-left: 10px;"
+                                               t-att-for="'delete_image_%s' % image.id">
+                                            Delete
+                                        </label>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
 
                     <div class="d-flex justify-content-end">
                         <a href="/my/repair_requests" class="btn btn-secondary me-2">Cancel</a>

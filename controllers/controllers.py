@@ -38,13 +38,12 @@ class CustomerPortalHome(CustomerPortal):
                               {'page_name': "create_request", 'products': products, 'error_message': error_message,
                                'success_message': success_message})
 
-
     @http.route(['/my/create-request/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
     def submit_request(self, **kw):
         # Retrieve form data
         repair_request_name = kw.get('repair_request_name')
         product_name = kw.get('product_name')
-        description = kw.get('description')
+        description = kw.get('repair_request_description')
         repair_deadline = kw.get('repair_deadline')
         repair_image = request.httprequest.files.getlist('repair_image')
 
@@ -103,8 +102,6 @@ class CustomerPortalHome(CustomerPortal):
             errors["repair_image"] = f"Error : {e}"
             logger.error("Error submitting repair request: %s", e)
 
-        # Set success message
-        request.session['success_message'] = "Repair request submitted successfully."
         return request.redirect('/my/repair_requests')
 
     @http.route('/my/repair_requests/<int:repair_id>', type='http', auth="user", website=True)
@@ -117,7 +114,7 @@ class CustomerPortalHome(CustomerPortal):
         for attachment in repair_request.repair_image:
             try:
                 image_data = attachment.datas.decode('utf-8')
-                images.append({'id': attachment.id, 'data': image_data})
+                images.append({'id': attachment.id, 'data': image_data, 'name': attachment.name})
             except Exception as e:
                 logger.error(f"Error reading image {attachment.id}: {e}")
         values = {
@@ -134,9 +131,19 @@ class CustomerPortalHome(CustomerPortal):
             return request.redirect('/my/repair_requests')
         if repair_request.status not in ['new', 'quotation']:
             return request.redirect('/my/repair_requests')
+
+        images = []
+        for attachment in repair_request.repair_image:
+            try:
+                image_data = attachment.datas.decode('utf-8')
+                images.append({'id': attachment.id, 'data': image_data, 'name': attachment.name})
+            except Exception as e:
+                logger.error(f"Error reading image {attachment.id}: {e}")
+
         values = {
             'page_name': 'edit_request',
             'repair_request': repair_request,
+            'images': images,
         }
         return request.render("repair_request.edit_repair_request", values)
 
@@ -149,17 +156,14 @@ class CustomerPortalHome(CustomerPortal):
         if repair_request.status not in ['new', 'quotation']:
             return request.redirect('/my/repair_requests')
 
-        # Convert the datetime string to the correct format
+        # Handle datetime conversion
         repair_deadline = kw.get('repair_deadline')
         if repair_deadline:
             try:
-                # Parse the input datetime string
                 dt = datetime.strptime(repair_deadline, '%Y-%m-%dT%H:%M')
-                # Convert to the format Odoo expects
                 repair_deadline = dt.strftime('%Y-%m-%d %H:%M:%S')
             except ValueError:
-                # Handle invalid date format
-                return request.render('repair_request.repair_request_edit_form', {
+                return request.render('repair_request.edit_repair_request', {
                     'error_message': 'Invalid date format',
                     'repair_request': repair_request,
                 })
@@ -170,6 +174,28 @@ class CustomerPortalHome(CustomerPortal):
             'description': kw.get('repair_request_description'),
             'repair_deadline': repair_deadline,
         }
+
+        # Handle image uploads
+        uploaded_files = request.httprequest.files.getlist('repair_image')
+        if uploaded_files:
+            for upload in uploaded_files:
+                file_content = upload.read()
+                if file_content:
+                    data = base64.b64encode(file_content)
+                    attachment_vals = {
+                        'name': upload.filename,
+                        'datas': data,
+                        'res_model': 'repair_request.repair_request',
+                        'res_id': repair_id,
+                    }
+                    attachment = request.env['ir.attachment'].sudo().create(attachment_vals)
+                    repair_request.write({'repair_image': [(4, attachment.id)]})
+
+        # Handle image deletions
+        for key, value in kw.items():
+            if key.startswith('delete_image_') and value == 'on':
+                image_id = int(key.split('_')[-1])
+                repair_request.write({'repair_image': [(3, image_id)]})
 
         repair_request.write(values)
         return request.redirect('/my/repair_requests/%s' % repair_id)
