@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 
 from odoo import http
+from datetime import datetime
 from odoo.addons.portal.controllers.portal import CustomerPortal as CustomerPortal
 from odoo.http import request, route
 from odoo.exceptions import UserError
@@ -15,7 +16,7 @@ class CustomerPortalHome(CustomerPortal):
     @http.route(['/my/repair_requests'], type='http', auth="user", website=True)
     def lists(self, **kw):
         repair_requests = request.env['repair_request.repair_request'].sudo().search(
-            [('partner_id', '=', request.env.user.partner_id.id)])
+            [('partner_id', '=', request.env.user.partner_id.id)], order='create_date desc')
         state_mapping = {
             "new": "New",
             "quotation": "In Progress",
@@ -117,6 +118,53 @@ class CustomerPortalHome(CustomerPortal):
         }
         # Pass the specific design request to the template
         return request.render("repair_request.repair_request_template", values)
+
+    @http.route(['/my/repair_requests/edit/<int:repair_id>'], type='http', auth="user", website=True)
+    def edit_repair_request(self, repair_id, **kw):
+        repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
+        if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
+            return request.redirect('/my/repair_requests')
+        if repair_request.status not in ['new', 'quotation']:
+            return request.redirect('/my/repair_requests')
+        values = {
+            'page_name': 'edit_request',
+            'repair_request': repair_request,
+        }
+        return request.render("repair_request.edit_repair_request", values)
+
+    @http.route(['/my/repair_requests/update/<int:repair_id>'], type='http', auth="user", methods=['POST'],
+                website=True, csrf=True)
+    def update_repair_request(self, repair_id, **kw):
+        repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
+        if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
+            return request.redirect('/my/repair_requests')
+        if repair_request.status not in ['new', 'quotation']:
+            return request.redirect('/my/repair_requests')
+
+        # Convert the datetime string to the correct format
+        repair_deadline = kw.get('repair_deadline')
+        if repair_deadline:
+            try:
+                # Parse the input datetime string
+                dt = datetime.strptime(repair_deadline, '%Y-%m-%dT%H:%M')
+                # Convert to the format Odoo expects
+                repair_deadline = dt.strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                # Handle invalid date format
+                return request.render('repair_request.repair_request_edit_form', {
+                    'error_message': 'Invalid date format',
+                    'repair_request': repair_request,
+                })
+
+        values = {
+            'repair_request_name': kw.get('repair_request_name'),
+            'product_name': kw.get('product_name'),
+            'description': kw.get('repair_request_description'),
+            'repair_deadline': repair_deadline,
+        }
+
+        repair_request.write(values)
+        return request.redirect('/my/repair_requests/%s' % repair_id)
 
     @http.route('/my/repair_requests/accept/<int:repair_id>', type='http', auth="user", website=True)
     def accept_quotation(self, repair_id, **kw):
