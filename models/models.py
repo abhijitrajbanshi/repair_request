@@ -23,9 +23,11 @@ class RepairRequest(models.Model):
     repair_image = fields.Many2many('ir.attachment', 'repair_request_image_rel', 'request_id', 'attachment_id',
                                     string='Repair Images', attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
-    scheduled_date = fields.Datetime(string="Scheduled Date")
-    responsible_user_id = fields.Many2one('res.users', string="Responsible")
-    repair_deadline = fields.Datetime(string="Repair Deadline")
+    date_start = fields.Datetime(string="Scheduled Date")
+    date = fields.Date(string='Expiration Date', index=True, tracking=True,
+                       help="Date on which this project ends. The timeframe defined on the project is taken into account when viewing its planning.")
+    responsible_user_id = fields.Many2one('res.users', string="Responsible", tracking=True)
+    repair_deadline = fields.Datetime(string="Customer's Repair Deadline")
     completion_date = fields.Datetime(string="Completion Date")
     is_past_due = fields.Boolean(string="Is Past Due", compute='_compute_is_past_due', store=True)
 
@@ -155,6 +157,7 @@ class RepairRequest(models.Model):
     def _compute_is_past_due(self):
         for record in self:
             record.is_past_due = bool(record.repair_deadline and record.repair_deadline < fields.Datetime.now() and record.status != 'completed')
+
 
     def start_repair(self):
         for record in self:
