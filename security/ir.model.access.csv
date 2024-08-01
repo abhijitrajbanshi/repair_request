@@ -3,3 +3,5 @@ access_repair_request_repair_request,repair_request.repair_request,model_repair_
 access_repair_request_repair_request_portal,repair_request.repair_request,model_repair_request_repair_request,base.group_portal,1,1,1,1
 access_repair_request_parts,repair_request.parts,model_repair_request_parts,base.group_user,1,1,1,1
 access_repair_request_parts_portal,repair_request.parts,model_repair_request_parts,base.group_portal,1,1,1,1
+access_repair_request_timesheet,repair_request.timesheet,model_repair_request_timesheet,base.group_user,1,1,1,1
+access_repair_request_timesheet_portal,repair_request.timesheet,model_repair_request_timesheet,base.group_portal,1,1,1,1
