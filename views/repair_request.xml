@@ -19,38 +19,44 @@
                 <span>Repair Requests</span>
             </li>
             <li t-if="page_name == 'create_request' " class="breadcrumb-item">
-                <a href="/my/repair_requests">Repair Requests</a> / <span>Create Request</span>
+                <a href="/my/repair_requests">Repair Requests</a>
+                /
+                <span>Create Request</span>
             </li>
             <li t-if="page_name == 'view_details' " class="breadcrumb-item">
-                <a href="/my/repair_requests">Repair Requests</a> / <span>View Details</span>
+                <a href="/my/repair_requests">Repair Requests</a>
+                /
+                <span>View Details</span>
             </li>
             <li t-if="page_name == 'view_quotation' " class="breadcrumb-item">
-                <a href="/my/repair_requests">Repair Requests</a> / <span>View Details</span>
+                <a href="/my/repair_requests">Repair Requests</a>
+                /
+                <span>View Details</span>
             </li>
         </xpath>
     </template>
 
-  <template id="repair_lists" name="Repair Lists">
-    <t t-call="portal.portal_layout">
-        <div class="wrapper col-12 d-flex flex-wrap justify-content-between align-items-center">
-            <h3 class="my-3">Repair Request Lists</h3>
-            <a href="/my/create-request" class="btn btn-primary py-2 d-flex align-items-center gap-2 ms-auto">
-                New
-            </a>
-        </div>
-        <div class="row justify-content-between">
-            <div t-attf-class="o_portal_content col-12 col-lg-8 mb-5">
-                <div class="o_portal_my_home">
-                    <div class="oe_structure" id="oe_structure_portal_my_home_1"/>
-                    <div class="o_portal_docs row g-2">
-                        <div class="o_portal_doc_spinner spinner-border text-o-color-2 align-self-center mt-5"/>
-                        <p class="o_portal_no_doc_message d-none">No Documents to display</p>
-                        <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
+    <template id="repair_lists" name="Repair Lists">
+        <t t-call="portal.portal_layout">
+            <div class="wrapper col-12 d-flex flex-wrap justify-content-between align-items-center">
+                <h3 class="my-3">Repair Request Lists</h3>
+                <a href="/my/create-request" class="btn btn-primary py-2 d-flex align-items-center gap-2 ms-auto">
+                    New
+                </a>
+            </div>
+            <div class="row justify-content-between">
+                <div t-attf-class="o_portal_content col-12 col-lg-8 mb-5">
+                    <div class="o_portal_my_home">
+                        <div class="oe_structure" id="oe_structure_portal_my_home_1"/>
+                        <div class="o_portal_docs row g-2">
+                            <div class="o_portal_doc_spinner spinner-border text-o-color-2 align-self-center mt-5"/>
+                            <p class="o_portal_no_doc_message d-none">No Documents to display</p>
+                            <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
             <t t-call="portal.portal_table">
                 <thead>
@@ -66,11 +72,11 @@
                     <t t-foreach="repair_requests" t-as="repair">
                         <tr>
                             <td>
-                                <t t-esc="repair.repair_reference" />
+                                <t t-esc="repair.repair_reference"/>
                             </td>
 
                             <td>
-                                <t t-esc="repair.repair_request_name" />
+                                <t t-esc="repair.repair_request_name"/>
                             </td>
 
                             <td>
@@ -82,10 +88,14 @@
                             </td>
 
                             <td>
-                                <a t-attf-href="/my/repair_requests/{{ repair.id }}" class="btn btn-primary">View Details</a>
+                                <a t-attf-href="/my/repair_requests/{{ repair.id }}" class="btn btn-primary">View
+                                    Details
+                                </a>
 
                                 <t t-if="repair.quotation_id and repair.status == 'client_review'">
-                                    <a t-attf-href="/my/repair_requests/view_quotation/{{ repair.id }}" class="btn btn-primary">View Quotation</a>
+                                    <a t-attf-href="/my/repair_requests/view_quotation/{{ repair.id }}"
+                                       class="btn btn-primary">View Quotation
+                                    </a>
                                 </t>
                             </td>
 
@@ -94,179 +104,277 @@
                 </tbody>
             </t>
         </t>
-</template>
+    </template>
 
 
-<template id="create_repair_request" name="Create Repair Request">
-    <t t-call="portal.portal_layout">
-        <div class="container mt-4">
-            <!-- Display error message if available -->
-            <t t-if="error_message">
-                <div class="alert alert-danger">
-                    <t t-esc="error_message"/>
-                </div>
-            </t>
+    <template id="create_repair_request" name="Create Repair Request">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <!-- Display error message if available -->
+                <t t-if="error_message">
+                    <div class="alert alert-danger">
+                        <t t-esc="error_message"/>
+                    </div>
+                </t>
 
-            <!-- Display success message if available -->
-            <t t-if="success_message">
-                <div class="alert alert-success">
-                    <t t-esc="success_message"/>
-                </div>
-            </t>
+                <!-- Display success message if available -->
+                <t t-if="success_message">
+                    <div class="alert alert-success">
+                        <t t-esc="success_message"/>
+                    </div>
+                </t>
 
-            <h3 class="mb-4">Create Repair Request</h3>
-            <form action="/my/create-request/submit" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
-                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <h3 class="mb-4">Create Repair Request</h3>
+                <form action="/my/create-request/submit" method="post" enctype="multipart/form-data"
+                      class="bg-white p-4 rounded shadow-sm">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                <div class="form-group mb-3">
-                    <label for="repair_request_name" class="form-label">Request Name</label>
-                    <input type="text" id="repair_request_name" name="repair_request_name" class="form-control" placeholder="Enter request name"/>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_request_name" class="form-label">Request Name</label>
+                        <input type="text" id="repair_request_name" name="repair_request_name" class="form-control"
+                               placeholder="Enter request name"/>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label for="product_name" class="form-label">Product</label>
-                    <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Enter name of the Product"/>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="product_name" class="form-label">Product</label>
+                        <input type="text" id="product_name" name="product_name" class="form-control"
+                               placeholder="Enter name of the Product"/>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label for="repair_request_description" class="form-label">Description</label>
-                    <textarea id="repair_request_description" name="repair_request_description" class="form-control" rows="4" placeholder="Provide a detailed description"></textarea>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_request_description" class="form-label">Description</label>
+                        <textarea id="repair_request_description" name="repair_request_description" class="form-control"
+                                  rows="4" placeholder="Provide a detailed description"></textarea>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label for="repair_deadline" class="form-label">Repair Deadline</label>
-                    <input type="datetime-local" class="form-control" id="repair_deadline" name="repair_deadline" required="required"/>
-                </div>
+                    <div class="form-group mb-3">
+                        <label for="repair_deadline" class="form-label">Repair Deadline</label>
+                        <input type="datetime-local" class="form-control" id="repair_deadline" name="repair_deadline"
+                               t-att-value="repair_request and repair_request.repair_deadline and repair_request.repair_deadline.strftime('%Y-%m-%dT%H:%M') or ''"/>
 
-                <div class="form-group mb-3">
-                    <label for="repair_image" class="form-label">Upload Image</label>
-                    <input type="file" class="form-control" id="repair_image" multiple = "multiple" name="repair_image" required="required"/>
-                </div>
+                    </div>
 
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary px-4 py-2">Submit</button>
-                </div>
-            </form>
-        </div>
-    </t>
-</template>
+                    <div class="form-group mb-3">
+                        <label for="repair_image" class="form-label">Upload Image</label>
+                        <input type="file" class="form-control" id="repair_image" multiple="multiple"
+                               name="repair_image" required="required"/>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4 py-2">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
 
 
     <template id="repair_request_template" name="Repair Request Detail">
-    <t t-call="portal.portal_layout">
-        <div class="container my-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Repair Request: <t t-esc="repair_request.repair_reference"/></h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <p><strong>Status:</strong> <span><t t-esc="repair_request.status"/></span></p>
-                            <p><strong>Product to Repair:</strong> <span><t t-esc="repair_request.product_name"/></span></p>
-                            <p><strong>Description:</strong></p>
-                            <p><t t-esc="repair_request.description"/></p>
+        <t t-call="portal.portal_layout">
+            <div class="container my-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Repair Request:
+                            <t t-esc="repair_request.repair_reference"/>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <p>
+                                    <strong>Status:</strong>
+                                    <span>
+                                        <t t-esc="repair_request.status"/>
+                                    </span>
+                                </p>
+                                <p>
+                                    <strong>Product to Repair:</strong>
+                                    <span>
+                                        <t t-esc="repair_request.product_name"/>
+                                    </span>
+                                </p>
+                                <p>
+                                    <strong>Description:</strong>
+                                </p>
+                                <p>
+                                    <t t-esc="repair_request.description"/>
+                                </p>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <t t-if="images">
+                                    <p>
+                                        <strong>Image Attachments:</strong>
+                                    </p>
+                                    <div t-foreach="images" t-as="image">
+                                        <img t-att-src="'data:image/png;base64,' + image['data']"
+                                             class="img-fluid border rounded mt-2"
+                                             style="max-width: 200px; cursor: pointer;"
+                                             data-bs-toggle="modal" data-bs-target="#imageModal"/>
+                                    </div>
+                                </t>
+                            </div>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <t t-if="images">
-                                <p><strong>Image Attachments:</strong></p>
-                                <div t-foreach="images" t-as="image">
-                                    <img t-att-src="'data:image/png;base64,' + image['data']"
-                                        class="img-fluid border rounded mt-2"
-                                        style="max-width: 200px; cursor: pointer;"
-                                        data-bs-toggle="modal" data-bs-target="#imageModal"/>
-                                </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <a href="/my/repair_requests" class="btn btn-secondary">Back to List</a>
+                        <a t-if="repair_request.status in ['new', 'quotation']"
+                           t-attf-href="/my/repair_requests/edit/{{ repair_request.id }}" class="btn btn-primary">Edit
+                            Request
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-fullscreen">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <t t-if="image">
+                                <img t-att-src="'data:image/png;base64,' + image['data']"
+                                     class="img-fluid border rounded"
+                                     style="width: 100%; height: 100%; object-fit: contain;"/>
                             </t>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer text-right">
-                    <a href="/my/repair_requests" class="btn btn-secondary">Back to List</a>
-                </div>
             </div>
-        </div>
+            <div class="container my-4">
+                <h3>Communication history</h3>
+                <t t-call="portal.message_thread">
+                    <t t-set="object" t-value="repair_request"/>
+                </t>
+            </div>
+        </t>
+    </template>
+    <template id="edit_repair_request" name="Edit Repair Request">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <h3 class="mb-4">Edit Repair Request</h3>
+                <form t-attf-action="/my/repair_requests/update/{{ repair_request.id }}" method="post"
+                      enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="form-group mb-3">
+                        <label for="repair_request_name" class="form-label">Request Name</label>
+                        <input type="text" id="repair_request_name" name="repair_request_name"
+                               class="form-control" t-att-value="repair_request.repair_request_name"/>
                     </div>
-                    <div class="modal-body text-center">
-                        <t t-if="image">
-                        <img t-att-src="'data:image/png;base64,' + image['data']"
-                             class="img-fluid border rounded" style="width: 100%; height: 100%; object-fit: contain;"/>
-                        </t>
+
+                    <div class="form-group mb-3">
+                        <label for="product_name" class="form-label">Product</label>
+                        <input type="text" id="product_name" name="product_name" class="form-control"
+                               t-att-value="repair_request.product_name"/>
                     </div>
-                </div>
+
+                    <div class="form-group mb-3">
+                        <label for="repair_request_description" class="form-label">Description</label>
+                        <textarea id="repair_request_description" name="repair_request_description"
+                                  class="form-control" rows="4">
+                            <t t-esc="repair_request.description"/>
+                        </textarea>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="repair_deadline" class="form-label">Repair Deadline</label>
+                        <input type="datetime-local" class="form-control" id="repair_deadline"
+                               name="repair_deadline" t-att-value="repair_request.repair_deadline"/>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <a href="/my/repair_requests" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2">Update</button>
+                    </div>
+                </form>
             </div>
-        </div>
-        <div class="container my-4">
-            <h3>Communication history</h3>
-            <t t-call="portal.message_thread">
-                <t t-set="object" t-value="repair_request"/>
-            </t>
-        </div>
-    </t>
+        </t>
     </template>
 
     <template id="quotation_template" name="Quotation Template">
-    <t t-call="portal.portal_layout">
-        <div class="container my-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Quotation: <t t-esc="quotation.name"/></h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <p><strong>Customer:</strong> <span><t t-esc="quotation.partner_id.display_name"/></span></p>
-                            <p><strong>Date:</strong> <span><t t-esc="quotation.date_order"/></span></p>
-                            <p><strong>Total:</strong> <span><t t-esc="quotation.amount_total"/></span></p>
-                        </div>
+        <t t-call="portal.portal_layout">
+            <div class="container my-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Quotation:
+                            <t t-esc="quotation.name"/>
+                        </h3>
                     </div>
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h4>Order Lines</h4>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Quantity</th>
-                                        <th>Unit Price</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="quotation.order_line" t-as="line">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <p>
+                                    <strong>Customer:</strong>
+                                    <span>
+                                        <t t-esc="quotation.partner_id.display_name"/>
+                                    </span>
+                                </p>
+                                <p>
+                                    <strong>Date:</strong>
+                                    <span>
+                                        <t t-esc="quotation.date_order"/>
+                                    </span>
+                                </p>
+                                <p>
+                                    <strong>Total:</strong>
+                                    <span>
+                                        <t t-esc="quotation.amount_total"/>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h4>Order Lines</h4>
+                                <table class="table table-striped">
+                                    <thead>
                                         <tr>
-                                            <td><t t-esc="line.product_id.display_name"/></td>
-                                            <td><t t-esc="line.product_uom_qty"/></td>
-                                            <td><t t-esc="line.price_unit"/></td>
-                                            <td><t t-esc="line.price_subtotal"/></td>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Subtotal</th>
                                         </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="quotation.order_line" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <t t-esc="line.product_id.display_name"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_uom_qty"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.price_unit"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.price_subtotal"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer text-right">
-                    <a href="/my/repair_requests" class="btn btn-secondary">Back to List</a>
+                    <div class="card-footer text-right">
+                        <a href="/my/repair_requests" class="btn btn-secondary">Back to List</a>
                         <t t-if="repair_request.status == 'client_review'">
-                            <a t-attf-href="/my/repair_requests/accept/{{ repair_request.id }}" class="btn btn-primary">Accept Quotation</a>
+                            <a t-attf-href="/my/repair_requests/accept/{{ repair_request.id }}" class="btn btn-primary">
+                                Accept Quotation
+                            </a>
                         </t>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container my-4">
-            <h3>Communication history</h3>
-            <t t-call="portal.message_thread">
-                <t t-set="object" t-value="repair_request"/>
-            </t>
-        </div>
-    </t>
+            <div class="container my-4">
+                <h3>Communication history</h3>
+                <t t-call="portal.message_thread">
+                    <t t-set="object" t-value="repair_request"/>
+                </t>
+            </div>
+        </t>
     </template>
 
 </odoo>
