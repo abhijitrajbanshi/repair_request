@@ -3,6 +3,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 import logging
+from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -49,7 +50,34 @@ class RepairRequest(models.Model):
     quotation_id = fields.Many2one('sale.order', string="Quotation", readonly=True)
     sale_order_id = fields.Many2one('sale.order', string="Sales Order", readonly=True)
     part_ids = fields.One2many('repair_request.parts', 'repair_request_id', string='Parts')
-    repair_notes = fields.Text(string='Repair Notes')
+
+    timesheet_ids = fields.One2many('repair_request.timesheet', 'repair_request_id', string='Timesheets')
+    timer_start = fields.Datetime(string="Timer Start")
+    is_timer_running = fields.Boolean(string="Is Timer Running", default=False)
+    timer_paused_at = fields.Datetime(string="Timer Paused At")
+
+    class RepairParts(models.Model):
+        _name = 'repair_request.parts'
+        _description = 'Repair Parts'
+
+        repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
+                                            ondelete='cascade')
+        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True, default='add')
+        product_id = fields.Many2one('product.product', string='Product', required=True)
+        demand = fields.Float(string='Demand', required=True)
+        done = fields.Float(string='Done')
+        used = fields.Boolean(string='Used', default=False)
+
+    class RepairTimesheet(models.Model):
+        _name = 'repair_request.timesheet'
+        _description = 'Repair Timesheet'
+
+        repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
+                                            ondelete='cascade')
+        employee_id = fields.Many2one('res.users', string='Employee', required=True)
+        date = fields.Date(string='Date', required=True, default=fields.Date.context_today)
+        description = fields.Char(string='Description')
+        hours_spent = fields.Float(string='Hours Spent')
 
     @api.model
     def create(self, vals):
@@ -133,6 +161,39 @@ class RepairRequest(models.Model):
             if record.status not in ['accepted', 'in_progress']:
                 raise UserError("Repair cannot be started unless it is accepted or already in progress.")
             record.status = 'in_progress'
+            record.is_timer_running = True
+            record.timer_start = fields.Datetime.now()
+            record.timer_paused_at = False
+            record.create_time_log('started')
+
+    def pause_timer(self):
+        for record in self:
+            if record.is_timer_running:
+                record.timer_paused_at = fields.Datetime.now()
+                record.is_timer_running = False
+
+    def resume_timer(self):
+        for record in self:
+            if not record.is_timer_running and record.timer_paused_at:
+                record.timer_start += fields.Datetime.now() - record.timer_paused_at
+                record.is_timer_running = True
+                record.timer_paused_at = False
+
+    def stop_timer(self):
+        for record in self:
+            if record.is_timer_running:
+                time_spent = fields.Datetime.now() - record.timer_start
+                record.timesheet_ids.create({
+                    'repair_request_id': record.id,
+                    'employee_id': self.env.user.id,
+                    'date': fields.Date.today(),
+                    'description': '/',
+                    'hours_spent': time_spent.total_seconds() / 3600.0,
+                })
+                record.is_timer_running = False
+                record.timer_start = False
+                record.timer_paused_at = False
+                record.create_time_log('stopped')
 
     def complete_repair(self):
         for record in self:
@@ -140,15 +201,18 @@ class RepairRequest(models.Model):
                 raise UserError("Repair can only be completed if it is in progress.")
             record.status = 'completed'
             record.completion_date = fields.Datetime.now()
+            record.stop_timer()
 
-    class RepairParts(models.Model):
-        _name = 'repair_request.parts'
-        _description = 'Repair Parts'
+    @api.depends('hours_spent')
+    def _compute_total_hours(self):
+        for record in self:
+            record.total_hours = sum(line.hours_spent for line in record.timesheet_ids)
 
-        repair_request_id = fields.Many2one('repair_request.repair_request', string='Repair Request', required=True,
-                                            ondelete='cascade')
-        part_type = fields.Selection([('add', 'Add'), ('replace', 'Replace')], string='Type', required=True, default='add')
-        product_id = fields.Many2one('product.product', string='Product', required=True)
-        demand = fields.Float(string='Demand', required=True)
-        done = fields.Float(string='Done')
-        used = fields.Boolean(string='Used', default=False)
+    def create_time_log(self, action):
+        now = fields.Datetime.now()
+        message = f"Timer {action} at: {now.strftime('%m/%d/%Y %H:%M:%S')}"
+        self.message_post(body=message)
+
+
+
+
