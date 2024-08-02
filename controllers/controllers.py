@@ -130,7 +130,7 @@ class CustomerPortalHome(CustomerPortal):
         repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
             return request.redirect('/my/repair_requests')
-        if repair_request.status not in ['new', 'quotation']:
+        if repair_request.status not in ['new', 'quotation', 'client_review']:
             return request.redirect('/my/repair_requests')
 
         images = []
@@ -154,7 +154,7 @@ class CustomerPortalHome(CustomerPortal):
         repair_request = request.env['repair_request.repair_request'].sudo().browse(repair_id)
         if not repair_request.exists() or repair_request.partner_id.id != request.env.user.partner_id.id:
             return request.redirect('/my/repair_requests')
-        if repair_request.status not in ['new', 'quotation']:
+        if repair_request.status not in ['new', 'quotation', 'client_review']:
             return request.redirect('/my/repair_requests')
 
         # Handle datetime conversion
