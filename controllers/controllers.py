@@ -94,7 +94,7 @@ class CustomerPortalHome(CustomerPortal):
                     'repair_image': [(6, 0, image_ids)],
                     'partner_id': request.env.user.partner_id.id,
                 })
-            logger.info("Repair request submitted successfully with images: %s", image_ids)
+            # logger.info("Repair request submitted successfully with images: %s", image_ids)
         except UnidentifiedImageError as e:
             errors["repair_image"] = "Invalid image type"
             logger.error("Invalid image type: %s", e)
