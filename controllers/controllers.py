@@ -94,13 +94,14 @@ class CustomerPortalHome(CustomerPortal):
                     'repair_image': [(6, 0, image_ids)],
                     'partner_id': request.env.user.partner_id.id,
                 })
-            logger.info("Repair request submitted successfully with images: %s", image_ids)
-        except UnidentifiedImageError as e:
-            errors["repair_image"] = "Invalid image type"
-            logger.error("Invalid image type: %s", e)
+            # Store success message in the session
+            request.session['success_message'] = 'Repair request submitted successfully with images!'
+        except UserError as e:
+            # Handle known errors
+            request.session['error_message'] = str(e)
         except Exception as e:
-            errors["repair_image"] = f"Error : {e}"
-            logger.error("Error submitting repair request: %s", e)
+            # Handle unknown errors
+            request.session['error_message'] = f"An unexpected error occurred: {e}"
 
         return request.redirect('/my/repair_requests')
 
