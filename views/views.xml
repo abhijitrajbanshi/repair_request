@@ -37,7 +37,9 @@
                             invisible="status != 'new'"
                             class="btn-danger"/>
 
-                    <field name="status" widget="statusbar"/>
+                    <field name="status" widget="statusbar" clickable="0"
+                           statusbar_visible="quotation,client_review,accepted,in_progress,completed"
+                           options="{'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
                     <group>
@@ -72,7 +74,6 @@
                             </field>
                         </page>
                         <page string="Timesheets">
-
                         <field name="timesheet_ids">
                             <tree editable="bottom">
                                 <field name="date"/>
