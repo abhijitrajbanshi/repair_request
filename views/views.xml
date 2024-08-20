@@ -7,7 +7,6 @@
             <tree string="Repair Requests" default_order="create_date desc">
                 <field name="repair_reference" string="Number"/>
                 <field name="create_date" string="Date"/>
-                <field name="repair_request_name" string="Name"/>
                 <field name="status" string="Status"/>
             </tree>
         </field>
