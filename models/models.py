@@ -19,7 +19,7 @@ class RepairRequest(models.Model):
     description = fields.Text(string="Description")
     client_email = fields.Char(string="Client Email")
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
-    product_name = fields.Char(string="Product to Repair")
+    product_type = fields.Char(string="Product to Repair")
     repair_image = fields.Many2many('ir.attachment', 'repair_request_image_rel', 'request_id', 'attachment_id',
                                     string='Repair Images', attachment=True)
     under_warranty = fields.Boolean(string="Under Warranty")
@@ -215,6 +215,8 @@ class RepairRequest(models.Model):
         now = fields.Datetime.now()
         message = f"Timer {action} at: {now.strftime('%m/%d/%Y %H:%M:%S')}"
         self.message_post(body=message)
+
+
 
 
 
