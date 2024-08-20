@@ -184,7 +184,7 @@
                                 <p>
                                     <strong>Product to Repair:</strong>
                                     <span>
-                                        <t t-esc="repair_request.product_name"/>
+                                        <t t-esc="repair_request.product_type"/>
                                     </span>
                                 </p>
                                 <p>
@@ -258,8 +258,8 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="product_name" class="form-label">Product</label>
-                        <input type="text" id="product_name" name="product_name" class="form-control"
+                        <label for="product_type" class="form-label">Product</label>
+                        <input type="text" id="product_type" name="product_type" class="form-control"
                                t-att-value="repair_request.product_name"/>
                     </div>
 
