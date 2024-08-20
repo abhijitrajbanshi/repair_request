@@ -41,7 +41,6 @@ class CustomerPortalHome(CustomerPortal):
     @http.route(['/my/create-request/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
     def submit_request(self, **kw):
         # Retrieve form data
-        repair_request_name = kw.get('repair_request_name')
         product_type = kw.get('product_type')
         description = kw.get('repair_request_description')
         repair_deadline = kw.get('repair_deadline')
@@ -86,7 +85,6 @@ class CustomerPortalHome(CustomerPortal):
 
             request.env['repair_request.repair_request'].sudo().create(
                 {
-                    'repair_request_name': repair_request_name,
                     'product_type': product_type,
                     'client_email': request.env.user.email,
                     'description': description,
@@ -170,7 +168,6 @@ class CustomerPortalHome(CustomerPortal):
                 })
 
         values = {
-            'repair_request_name': kw.get('repair_request_name'),
             'product_type': kw.get('product_type'),
             'description': kw.get('repair_request_description'),
             'repair_deadline': repair_deadline,

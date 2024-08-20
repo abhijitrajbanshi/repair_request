@@ -62,7 +62,6 @@
                 <thead>
                     <tr class="active">
                         <th>Repair Reference</th>
-                        <th>Name</th>
                         <th>Order Date</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -73,10 +72,6 @@
                         <tr>
                             <td>
                                 <t t-esc="repair.repair_reference"/>
-                            </td>
-
-                            <td>
-                                <t t-esc="repair.repair_request_name"/>
                             </td>
 
                             <td>
@@ -110,19 +105,19 @@
     <template id="create_repair_request" name="Create Repair Request">
         <t t-call="portal.portal_layout">
             <div class="container mt-4">
-                <!-- Display error message if available -->
-                <t t-if="error_message">
-                    <div class="alert alert-danger">
-                        <t t-esc="error_message"/>
-                    </div>
-                </t>
+<!--                &lt;!&ndash; Display error message if available &ndash;&gt;-->
+<!--                <t t-if="error_message">-->
+<!--                    <div class="alert alert-danger">-->
+<!--                        <t t-esc="error_message"/>-->
+<!--                    </div>-->
+<!--                </t>-->
 
                 <!-- Display success message if available -->
-                <t t-if="success_message">
-                    <div class="alert alert-success">
-                        <t t-esc="success_message"/>
-                    </div>
-                </t>
+<!--                <t t-if="success_message">-->
+<!--                    <div class="alert alert-success">-->
+<!--                        <t t-esc="success_message"/>-->
+<!--                    </div>-->
+<!--                </t>-->
 
                 <h3 class="mb-4">Create Repair Request</h3>
                 <form action="/my/create-request/submit" method="post" enctype="multipart/form-data"
@@ -131,7 +126,7 @@
 
                     <div class="form-group mb-3">
                         <label for="product_type" class="form-label">Product Type</label>
-                        <input type="text" id="product_name" name="product_name" class="form-control"
+                        <input type="text" id="product_type" name="product_type" class="form-control"
                                placeholder="Enter name of the Product"/>
                     </div>
 
@@ -252,15 +247,9 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                     <div class="form-group mb-3">
-                        <label for="repair_request_name" class="form-label">Request Name</label>
-                        <input type="text" id="repair_request_name" name="repair_request_name"
-                               class="form-control" t-att-value="repair_request.repair_request_name"/>
-                    </div>
-
-                    <div class="form-group mb-3">
                         <label for="product_type" class="form-label">Product</label>
                         <input type="text" id="product_type" name="product_type" class="form-control"
-                               t-att-value="repair_request.product_name"/>
+                               t-att-value="repair_request.product_type"/>
                     </div>
 
                     <div class="form-group mb-3">
