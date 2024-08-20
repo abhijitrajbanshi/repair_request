@@ -46,7 +46,7 @@
                         <group>
                             <field name="repair_reference"/>
                             <field name="partner_id"/>
-                            <field name="product_name"/>
+                            <field name="product_type"/>
                             <field name="under_warranty"/>
                             <field name="completion_date"/>
                             <field name="repair_image" widget="many2many_binary" options="{'preview_image': 'datas'}"/>

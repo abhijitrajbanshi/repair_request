@@ -83,7 +83,7 @@ class RepairRequest(models.Model):
 
     @api.model
     def create(self, vals):
-        if not vals.get('product_name'):
+        if not vals.get('product_type'):
             raise UserError("The field 'Product' is required.")
         if vals.get('repair_reference', 'New') == 'New':
             vals['repair_reference'] = self.env['ir.sequence'].next_by_code('repair_request.repair_request') or 'New'
@@ -126,7 +126,7 @@ class RepairRequest(models.Model):
             subject = "Repair Request Review"
             body = f"""
                        <p>Dear {record.partner_id.name},</p>
-                       <p>Your repair request (<b>{record.product_name}</b>) is ready for review. Please log in to the portal to review the details.</p>
+                       <p>Your repair request (<b>{record.product_type}</b>) is ready for review. Please log in to the portal to review the details.</p>
                        <p>Best regards,<br/>Sales Team</p>
                        """
             email_values = {
